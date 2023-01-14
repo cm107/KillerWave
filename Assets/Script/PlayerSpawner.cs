@@ -9,8 +9,6 @@ public class PlayerSpawner : MonoBehaviour
     void Start()
     {
         CreatePlayer();
-        GetComponentInChildren<Player>().enabled = true; // re-enable (when leaving shop scene and entering testLevel scene)
-        GameManager.Instance.CameraSetup(); // temporary fix
     }
 
     void CreatePlayer()
@@ -38,16 +36,6 @@ public class PlayerSpawner : MonoBehaviour
             playerShip = GameObject.Find("UpgradedShip");
         }
 
-        // // Create Player
-        // actorModel = Object.Instantiate(
-        //     Resources.Load("PLayer_Default")
-        // ) as SOActorModel;
-        // playerShip = GameObject.Instantiate(
-        //     actorModel.actor
-        // ) as GameObject;
-        // Player player = playerShip.GetComponent<Player>();
-        // player.ActorStats(actorModel);
-
         // Set player up
         playerShip.transform.rotation = Quaternion.Euler(0, 180, 0);
         playerShip.transform.localScale = new Vector3(60, 60, 60);
@@ -55,6 +43,7 @@ public class PlayerSpawner : MonoBehaviour
         playerShip.name = "Player"; // Get rid of the (Clone) part added by Unity.
         playerShip.transform.SetParent(this.transform);
         playerShip.transform.position = Vector3.zero;
+        playerShip.GetComponent<PlayerTransition>().enabled = true;
         GameManager.Instance.CameraSetup();
     }
 

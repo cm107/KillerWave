@@ -1,5 +1,6 @@
 using UnityEngine.SceneManagement;
 using UnityEngine;
+using System;
 
 public class ScenesManager : MonoBehaviour
 {
@@ -15,6 +16,11 @@ public class ScenesManager : MonoBehaviour
         gameOver
     }
 
+    float gameTimer = 0;
+    float[] endLevelTimer = {30, 30, 45};
+    int currentSceneNumber = 0;
+    bool gameEnding = false;
+
     void Start()
     {
         
@@ -22,12 +28,65 @@ public class ScenesManager : MonoBehaviour
 
     void Update()
     {
-        
+        if (currentSceneNumber != SceneManager.GetActiveScene().buildIndex)
+        {
+            currentSceneNumber = SceneManager.GetActiveScene().buildIndex;
+            GetScene();
+        }
+        GameTimer();
+    }
+
+    private void GameTimer()
+    {
+        switch (scenes)
+        {
+            case Scenes.level1: case Scenes.level2: case Scenes.level3:
+            {
+                // Note: Level1 is (Scenes)3.
+                if (gameTimer < endLevelTimer[currentSceneNumber-3])
+                {
+                    // if level has not completed
+                    gameTimer += Time.deltaTime;
+                }
+                else
+                {
+                    // if level is completed
+                    if (!gameEnding)
+                    {
+                        gameEnding = true;
+
+                        PlayerTransition playerTransition = (
+                            GameObject.FindGameObjectWithTag("Player")
+                            .GetComponent<PlayerTransition>()
+                        );  
+                        if (SceneManager.GetActiveScene().name != "level3")
+                            playerTransition.LevelEnds = true;
+                        else
+                            playerTransition.GameCompleted = true;
+                        Invoke("NextLevel", 4);
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    private void GetScene()
+    {
+        scenes = (Scenes)currentSceneNumber;
     }
 
     public void ResetScene()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        gameTimer = 0;
+        SceneManager.LoadScene(GameManager.currentScene);
+    }
+
+    private void NextLevel()
+    {
+        gameEnding = false;
+        gameTimer = 0;
+        SceneManager.LoadScene(GameManager.currentScene+1);
     }
 
     public void GameOver()
@@ -36,8 +95,8 @@ public class ScenesManager : MonoBehaviour
         SceneManager.LoadScene("gameOver");
     }
 
-    public void BeginGame()
+    public void BeginGame(int gameLevel)
     {
-        SceneManager.LoadScene("testLevel");
+        SceneManager.LoadScene(gameLevel);
     }
 }

@@ -151,7 +151,7 @@ public class PlayerShipBuild : MonoBehaviour, IUnityAdsListener, IUnityAdsInitia
                 playerShip.GetComponent<Player>().Health = 2;
             DontDestroyOnLoad(playerShip);
         }
-        UnityEngine.SceneManagement.SceneManager.LoadScene("testLevel");
+        GameManager.Instance.GetComponent<ScenesManager>().BeginGame(GameManager.gameLevelScene);
     }
 
     private void BuyItem()
