@@ -61,7 +61,7 @@ public class GameManager : MonoBehaviour
 
     }
 
-    void CameraSetup()
+    public void CameraSetup()
     {
         GameObject gameCamera = GameObject.FindGameObjectWithTag("MainCamera");
 

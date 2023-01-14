@@ -3,20 +3,21 @@
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 454270ba86f08ae4fab2ebf16b834170, type: 3}
+  m_Script: {fileID: 11500000, guid: 9c8a0bd245aa09ecb89ef72f64a26eb3, type: 3}
   m_Name: bShotBullet
   m_EditorClassIdentifier: 
   actorName: b Shot Bullet
-  attackType: 2
+  attackType: 3
   description: Player Shot Bullet
   health: 2
   speed: 700
   hitPower: 1
-  actor: {fileID: 1218136449366864, guid: 20da6ef8fbd49e24699bb6ab118ddeff, type: 2}
-  actorsBullets: {fileID: 0}
   score: 0
+  actor: {fileID: 1218136449366864, guid: c20fc9da48f847d43982d8bf20857fb3, type: 3}
+  actorsBullets: {fileID: 0}
