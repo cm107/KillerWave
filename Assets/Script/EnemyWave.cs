@@ -20,8 +20,10 @@ public class EnemyWave : MonoBehaviour, IActorTemplate
         
     }
 
-    void Update()
+    void FixedUpdate()
     {
+        // Note: This doesn't get executed when timeScale is 0.
+        //       Update, on the other hand, does.
         Attack();
     }
 

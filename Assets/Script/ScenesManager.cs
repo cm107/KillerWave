@@ -2,6 +2,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using System.Collections;
 
 public class ScenesManager : MonoBehaviour
 {
@@ -16,6 +17,13 @@ public class ScenesManager : MonoBehaviour
         level3,
         gameOver
     }
+    public MusicMode musicMode;
+    public enum MusicMode
+    {
+        noSound, // no music is playing
+        fadeDown, // the music's volume will fade to zero
+        musicOn // the music will be playing and will be set to its maximum valume
+    }
 
     float gameTimer = 0;
     float[] endLevelTimer = {30, 30, 45};
@@ -24,11 +32,14 @@ public class ScenesManager : MonoBehaviour
 
     void Start()
     {
+        StartCoroutine(MusicVolume(MusicMode.musicOn));
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnSceneLoaded(Scene aScene, LoadSceneMode aMode)
     {
+        StartCoroutine(MusicVolume(MusicMode.musicOn));
+
         GetComponent<GameManager>().SetLivesDisplay(GameManager.playerLives);
         GameObject score = GameObject.Find("score");
         if (score != null)
@@ -45,12 +56,48 @@ public class ScenesManager : MonoBehaviour
         GameTimer();
     }
 
+    IEnumerator MusicVolume(MusicMode musicMode)
+    {
+        AudioSource audioSource = GetComponentInChildren<AudioSource>();
+        switch (musicMode)
+        {
+            case MusicMode.noSound:
+            {
+                audioSource.Stop();
+                break;
+            }
+            case MusicMode.fadeDown:
+            {
+                audioSource.volume -= Time.deltaTime / 3;
+                break;
+            }
+            case MusicMode.musicOn:
+            {
+                if (audioSource.clip != null)
+                {
+                    audioSource.Play();
+                    audioSource.volume = 1;
+                }
+                break;
+            }
+        }
+        yield return new WaitForSeconds(0.1f);
+    }
+
     private void GameTimer()
     {
+        AudioSource audioSource = GetComponentInChildren<AudioSource>();
         switch (scenes)
         {
             case Scenes.level1: case Scenes.level2: case Scenes.level3:
             {
+                if (audioSource.clip == null)
+                {
+                    AudioClip lvlMusic = Resources.Load<AudioClip>("Sound/lvlMusic") as AudioClip;
+                    audioSource.clip = lvlMusic;
+                    audioSource.Play();
+                }
+
                 // Note: Level1 is (Scenes)3.
                 if (gameTimer < endLevelTimer[currentSceneNumber-3])
                 {
@@ -60,6 +107,7 @@ public class ScenesManager : MonoBehaviour
                 else
                 {
                     // if level is completed
+                    StartCoroutine(MusicVolume(MusicMode.fadeDown));
                     if (!gameEnding)
                     {
                         gameEnding = true;
@@ -77,6 +125,11 @@ public class ScenesManager : MonoBehaviour
                 }
                 break;
             }
+            default:
+            {
+                audioSource.clip = null;
+                break;
+            }
         }
     }
 
@@ -87,6 +140,7 @@ public class ScenesManager : MonoBehaviour
 
     public void ResetScene()
     {
+        StartCoroutine(MusicVolume(MusicMode.noSound));
         gameTimer = 0;
         SceneManager.LoadScene(GameManager.currentScene);
     }
@@ -96,6 +150,7 @@ public class ScenesManager : MonoBehaviour
         gameEnding = false;
         gameTimer = 0;
         SceneManager.LoadScene(GameManager.currentScene+1);
+        StartCoroutine(MusicVolume(MusicMode.musicOn));
     }
 
     public void GameOver()
