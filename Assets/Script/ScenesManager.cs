@@ -104,6 +104,10 @@ public class ScenesManager : MonoBehaviour
         SceneManager.LoadScene("gameOver");
     }
 
+    public void BeginGame()
+    {
+        SceneManager.LoadScene("testLevel");
+    }
     public void BeginGame(int gameLevel)
     {
         SceneManager.LoadScene(gameLevel);

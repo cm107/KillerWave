@@ -183,8 +183,6 @@ public class PlayerShipBuild : MonoBehaviour, IUnityAdsListener, IUnityAdsInitia
 
             DontDestroyOnLoad(playerShip);
         }
-        if (GameManager.Instance == null) // Yeah, this isn't good...
-            Debug.Log("GameManager.Instance is null");
         GameManager.Instance.GetComponent<ScenesManager>().BeginGame(GameManager.gameLevelScene);
     }
 
