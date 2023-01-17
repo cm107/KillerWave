@@ -1,5 +1,6 @@
 using UnityEngine.SceneManagement;
 using UnityEngine;
+using UnityEngine.UI;
 using System;
 
 public class ScenesManager : MonoBehaviour
@@ -23,7 +24,15 @@ public class ScenesManager : MonoBehaviour
 
     void Start()
     {
-        
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene aScene, LoadSceneMode aMode)
+    {
+        GetComponent<GameManager>().SetLivesDisplay(GameManager.playerLives);
+        GameObject score = GameObject.Find("score");
+        if (score != null)
+            score.GetComponent<Text>().text = GetComponent<ScoreManager>().PlayersScore.ToString();
     }
 
     void Update()

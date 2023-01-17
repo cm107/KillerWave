@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ShopPiece : MonoBehaviour
 {
@@ -11,14 +12,10 @@ public class ShopPiece : MonoBehaviour
 
     void Awake()
     {
-        // icon slot
-        SpriteRenderer spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-        if (spriteRenderer != null)
-            spriteRenderer.sprite = shopSelection.icon;
-        
-        // selection value
-        Transform itemTextTransform = transform.Find("itemText");
-        if (itemTextTransform != null)
-            itemTextTransform.GetComponent<TextMesh>().text = shopSelection.cost;
+        Image itemImage = transform.GetChild(3).GetComponent<Image>();
+        if (itemImage != null)
+            itemImage.sprite = shopSelection.icon;
+        if (transform.Find("itemText"))
+            GetComponentInChildren<Text>().text = shopSelection.cost.ToString();
     }
 }

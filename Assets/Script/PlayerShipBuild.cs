@@ -1,17 +1,18 @@
-using System;
-using System.Collections;
 using UnityEngine;
+using System.Collections;
 using UnityEngine.Advertisements;
+using UnityEngine.UI;
 
 public class PlayerShipBuild : MonoBehaviour, IUnityAdsListener, IUnityAdsInitializationListener
 {
-    [SerializeField] GameObject[] shopButtons;
     GameObject target;
     GameObject tmpSelection;
     GameObject textBoxPanel;
 
-    [SerializeField] GameObject[] visualWeapons;
-    [SerializeField] SOActorModel defaultPlayerShip;
+    [SerializeField]
+    GameObject[] visualWeapons;
+    [SerializeField]
+    SOActorModel defaultPlayerShip;
     GameObject playerShip;
     GameObject buyButton;
     GameObject bankObj;
@@ -28,269 +29,294 @@ public class PlayerShipBuild : MonoBehaviour, IUnityAdsListener, IUnityAdsInitia
         CheckPlatform();
     }
 
-    private void CheckPlatform()
+    void CheckPlatform()
     {
         string gameId = null;
-        #if UNITY_IOS
-        {
-            gameId = iOSGameId;
-            adId = "Rewarded_iOS";
-        }
-        #elif UNITY_ANDROID
+#if UNITY_IOS
+    {
+        gameId = iOSGameId;
+        adId = "Rewarded_iOS";
+    }
+#elif UNITY_ANDROID
         {
             gameId = androidGameId;
             adId = "Rewarded_Android";
         }
-        #endif
-        Advertisement.Initialize(gameId, testMode, false, this);
+#endif
+        Advertisement.Initialize(gameId, testMode, false,this);
     }
 
     void Start()
     {
+        StartCoroutine(WaitForAd());
         textBoxPanel = GameObject.Find("textBoxPanel");
         TurnOffSelectionHighlights();
 
         purchaseMade = false;
         bankObj = GameObject.Find("bank");
         bankObj.GetComponentInChildren<TextMesh>().text = bank.ToString();
-        buyButton = textBoxPanel.transform.Find("BUY ?").gameObject;
-
+        buyButton = GameObject.Find("BUY?").gameObject;
+        buyButton.SetActive(false);
         TurnOffPlayerShipVisuals();
         PreparePlayerShipForUpgrade();
-
-        StartCoroutine(WaitForAd()); // Wait until advert is initialized.
     }
 
-    private IEnumerator WaitForAd()
+    IEnumerator WaitForAd()
     {
         while (!Advertisement.isInitialized)
+        {
             yield return null;
-        
+        }
         LoadAd();
     }
 
-    private void LoadAd()
+    void LoadAd()
     {
         Advertisement.AddListener(this);
         Advertisement.Load(adId);
     }
 
-    private void PreparePlayerShipForUpgrade()
+    void TurnOffSelectionHighlights()
     {
-        playerShip = GameObject.Instantiate(defaultPlayerShip.actor);
-
-        // Disable and put off to the side while in the shop scene.
-        playerShip.GetComponent<Player>().enabled = false;
-        playerShip.transform.position = new Vector3(0,10000,0);
-        playerShip.GetComponent<IActorTemplate>().ActorStats(defaultPlayerShip);
-    }
-
-    private void TurnOffPlayerShipVisuals()
-    {
-        for (int i = 0; i < visualWeapons.Length; i++)
-            visualWeapons[i].gameObject.SetActive(false);
-    }
-
-    void Update()
-    {
-        AttemptSelection();
-    }
-
-    void AttemptSelection()
-    {
-        if (Input.GetMouseButtonDown(0))
+        GameObject[] selections = GameObject.FindGameObjectsWithTag("Selection");
+        for (int i = 0; i < selections.Length; i++)
         {
-            RaycastHit hitInfo;
-            target = ReturnClickedObject(out hitInfo);
-
-            if (target != null)
+            if (selections[i].GetComponentInParent<ShopPiece>())
             {
-                if (target.transform.Find("itemText"))
+                if (selections[i].GetComponentInParent<ShopPiece>().ShopSelection.iconName == "sold Out")
                 {
-                    TurnOffSelectionHighlights();
-                    Select();
-                    UpdateDescriptionBox();
-
-                    // Not already sold
-                    TextMesh itemTextMesh = target.transform.Find("itemText").GetComponent<TextMesh>();
-                    if (itemTextMesh.text != "SOLD")
-                    {
-                        // can afford
-                        Affordable();
-
-                        // can not afford
-                        LackOfCredits();
-                    }
-                    else if (itemTextMesh.text == "SOLD")
-                    {
-                        SoldOut();
-                    }
-                }
-                else if (target.name == "WATCH AD")
-                {
-                    WatchAdvert();
-                }
-                else if (target.name == "BUY ?")
-                {
-                    BuyItem();
-                }
-                else if (target.name == "START")
-                {
-                    StartGame();
+                    selections[i].SetActive(false);
                 }
             }
         }
     }
 
-    private void StartGame()
+    //REMOVED 05
+    //void Update()
+    //{
+    //    AttemptSelection();
+    //}
+
+
+    //REMOVED 01
+    //GameObject ReturnClickedObject(out RaycastHit hit)
+    //{
+    //    GameObject target = null;
+    //    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+    //    if (Physics.Raycast(ray.origin, ray.direction * 100,out hit))
+    //    {
+    //        target = hit.collider.gameObject;
+    //    }
+    //    return target;
+
+    //}
+
+    public void AttemptSelection(GameObject buttonName)
+    {
+        if (buttonName)
+        {
+            TurnOffSelectionHighlights();
+            tmpSelection = buttonName;
+            tmpSelection.transform.GetChild(1).gameObject.SetActive(true);
+            //REMOVED 03
+            //        if (Input.GetMouseButtonDown(0))
+            //        {
+            //            RaycastHit hitInfo;
+            //            target = ReturnClickedObject(out hitInfo);
+            //            if (target != null)
+            //            {
+            //                if (target.transform.Find("itemText"))
+            //                {
+            //TurnOffSelectionHighlights();
+            //Select();
+
+            //ENTER if (buttonName) around here code block here
+
+            UpdateDescriptionBox();
+
+            //NOT ALREADY SOLD
+            if (buttonName.GetComponentInChildren<Text>().text != "SOLD")
+            {
+                //can afford
+                Affordable();
+
+                //can not afford
+                LackOfCredits();
+            }
+            else if (buttonName.GetComponentInChildren<Text>().text == "SOLD")
+            {
+                SoldOut();
+            }
+        }
+
+        //REMOVED 04
+        //
+        //else if (target.name == "BUY ?")
+        //{
+        //    BuyItem();
+        //}
+        //else if (target.name == "START")
+        //{
+        //    StartGame();
+        //}
+        //else if (target.name == "WATCH AD")
+        //{
+        //    WatchAdvert();
+        //}
+    }
+
+    public void WatchAdvert()
+    {
+        Advertisement.Show(adId);
+    }
+
+    public void StartGame()
     {
         if (purchaseMade)
         {
             playerShip.name = "UpgradedShip";
+
             if (playerShip.transform.Find("energy +1(Clone)"))
+            {
                 playerShip.GetComponent<Player>().Health = 2;
+            }
+
             DontDestroyOnLoad(playerShip);
         }
+        if (GameManager.Instance == null) // Yeah, this isn't good...
+            Debug.Log("GameManager.Instance is null");
         GameManager.Instance.GetComponent<ScenesManager>().BeginGame(GameManager.gameLevelScene);
     }
 
-    private void BuyItem()
+    public void BuyItem()
     {
         Debug.Log("PURCHASED");
         purchaseMade = true;
         buyButton.SetActive(false);
-        tmpSelection.SetActive(false);
+        textBoxPanel.transform.Find("desc").gameObject.GetComponent<TextMesh>().text = "";
+        textBoxPanel.transform.Find("name").gameObject.GetComponent<TextMesh>().text = "";
+        //tmpSelection.SetActive(false);
 
-        SOShopSelection shopSelection = tmpSelection.transform.parent.gameObject.GetComponent<ShopPiece>().ShopSelection;
         for (int i = 0; i < visualWeapons.Length; i++)
         {
-            GameObject visualWeapon = visualWeapons[i];
-            if (visualWeapon.name == shopSelection.iconName)
-                visualWeapon.SetActive(true);
+            if (visualWeapons[i].name == tmpSelection.GetComponent<ShopPiece>().ShopSelection.iconName)
+            {
+                visualWeapons[i].SetActive(true);
+            }
         }
 
-        UpgradeToShip(shopSelection.iconName);
-        bank = bank - System.Int32.Parse(shopSelection.cost);
+        UpgradeToShip(tmpSelection.GetComponent<ShopPiece>().ShopSelection.iconName);
+
+        bank = bank - System.Int16.Parse(tmpSelection.GetComponent<ShopPiece>().ShopSelection.cost);
         bankObj.transform.Find("bankText").GetComponent<TextMesh>().text = bank.ToString();
-        tmpSelection.transform.parent.transform.Find("itemText").GetComponent<TextMesh>().text = "SOLD";
+        tmpSelection.transform.Find("itemText").GetComponentInChildren<Text>().text = "SOLD";
     }
 
-    private void UpgradeToShip(string upgrade)
+    void UpgradeToShip(string upgrade)
     {
         GameObject shipItem = GameObject.Instantiate(Resources.Load(upgrade)) as GameObject;
         shipItem.transform.SetParent(playerShip.transform);
         shipItem.transform.localPosition = Vector3.zero;
     }
 
-    private void WatchAdvert()
+    void Affordable()
     {
-        Advertisement.Show(adId);
-    }
-
-    private void SoldOut()
-    {
-        Debug.Log("SOLD OUT");
-    }
-
-    private void LackOfCredits()
-    {
-        TextMesh itemTextMesh = target.transform.Find("itemText").GetComponent<TextMesh>();
-        string itemText = itemTextMesh.text; // Why not do it the same way as in Affordable?
-        if (bank < System.Int32.Parse(itemText))
-        {
-            Debug.Log("CAN'T BUY");
-        }
-    }
-
-    private void Affordable()
-    {
-        string cost = target.transform.GetComponent<ShopPiece>().ShopSelection.cost;
-        if (bank >= System.Int32.Parse(cost))
+        if (bank >= System.Int32.Parse(tmpSelection.GetComponentInChildren<Text>().text))
         {
             Debug.Log("CAN BUY");
             buyButton.SetActive(true);
         }
     }
 
-    private void UpdateDescriptionBox()
+    void SoldOut()
     {
-        SOShopSelection shopSelection = tmpSelection.GetComponentInParent<ShopPiece>().ShopSelection;
-        TextMesh name = textBoxPanel.transform.Find("name").GetComponent<TextMesh>();
-        name.text = shopSelection.iconName;
-        TextMesh desc = textBoxPanel.transform.Find("desc").GetComponent<TextMesh>();
-        desc.text = shopSelection.description;
+        Debug.Log("SOLD OUT");
     }
 
-    private void Select()
+    void TurnOffPlayerShipVisuals()
     {
-        tmpSelection = target.transform.Find("SelectionQuad").gameObject;
-        tmpSelection.SetActive(true);
+        for (int i = 0; i < visualWeapons.Length; i++)
+        {
+            visualWeapons[i].gameObject.SetActive(false);
+        }
     }
 
-    GameObject ReturnClickedObject(out RaycastHit hit)
+    void PreparePlayerShipForUpgrade()
     {
-        GameObject target = null;
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray.origin, ray.direction * 100, out hit))
-            target = hit.collider.gameObject;
-        return target;
+        playerShip = GameObject.Instantiate(defaultPlayerShip.actor);
+        playerShip.GetComponent<Player>().enabled = false;
+        playerShip.transform.position = new Vector3(0, 10000, 0);
+        playerShip.GetComponent<IActorTemplate>().ActorStats(defaultPlayerShip);
     }
 
-    void TurnOffSelectionHighlights()
+    void LackOfCredits()
     {
-        for (int i = 0; i < shopButtons.Length; i++)
-            shopButtons[i].SetActive(false);
+        if (bank < System.Int32.Parse(tmpSelection.GetComponentInChildren<Text>().text))
+        {
+            Debug.Log("CAN'T BUY");
+        }
+    }
+
+    //REMOVED 02
+    //void Select()
+    //{
+    //    tmpSelection = target.transform.Find("SelectionQuad").gameObject;
+    //    tmpSelection.SetActive(true);
+
+    //}
+
+    void UpdateDescriptionBox()
+    {
+        textBoxPanel.transform.Find("name").gameObject.GetComponent<TextMesh>().text = tmpSelection.GetComponent<ShopPiece>().ShopSelection.iconName;
+        textBoxPanel.transform.Find("desc").gameObject.GetComponent<TextMesh>().text = tmpSelection.GetComponent<ShopPiece>().ShopSelection.description;
     }
 
     public void OnUnityAdsReady(string placementId)
     {
-        // When a Unity advert is ready to play.
-        // throw new NotImplementedException();
+  
     }
 
     public void OnUnityAdsDidError(string message)
     {
-        // An error happened with loading the advert.
-        // throw new NotImplementedException();
+   
     }
 
     public void OnUnityAdsDidStart(string placementId)
     {
-        // The advert has started playing.
-        // throw new NotImplementedException();
+      
     }
 
     public void OnUnityAdsDidFinish(string placementId, ShowResult showResult)
     {
-        // The advert has finished playing.
         if (showResult == ShowResult.Finished)
         {
-            // Reward Player
+            // REWARD PLAYER
             Debug.Log("Unity Ads Rewarded Ad Completed");
             bank += 300;
             bankObj.GetComponentInChildren<TextMesh>().text = bank.ToString();
         }
+
         else if (showResult == ShowResult.Skipped)
         {
-            // Do Not Reward Player
+            // DO NOT REWARD PLAYER
         }
+
         else if (showResult == ShowResult.Failed)
         {
             Debug.LogWarning("The ad did not finish due to an error.");
         }
-        Advertisement.Load(placementId); // loads another advert using the same reward id
-        TurnOffSelectionHighlights(); // deselects all buttons in the shop
+
+        Advertisement.Load(placementId);
+        TurnOffSelectionHighlights();
     }
 
     public void OnInitializationComplete()
     {
-        // This method will run when our advert service has been initialized.
         Debug.Log("Unity Ads initialization complete.");
     }
 
     public void OnInitializationFailed(UnityAdsInitializationError error, string message)
     {
-        // If the advert service initialization has failed.
         Debug.Log($"Unity Ads Initialization Failed: {error.ToString()} - {message}");
     }
 }

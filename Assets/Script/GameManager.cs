@@ -29,6 +29,11 @@ public class GameManager : MonoBehaviour
         LightAndCameraSetup(currentScene);
     }
 
+    void Start()
+    {
+        SetLivesDisplay(playerLives);
+    }
+
     private void LightAndCameraSetup(int sceneNumber)
     {
         switch (sceneNumber)
@@ -54,11 +59,6 @@ public class GameManager : MonoBehaviour
         {
             Destroy(this.gameObject);
         }
-    }
-
-    void Start()
-    {
-
     }
 
     public void CameraSetup()
@@ -102,5 +102,31 @@ public class GameManager : MonoBehaviour
             playerLives = 3;
             GetComponent<ScenesManager>().GameOver();
         }
+    }
+
+    public void SetLivesDisplay(int players)
+    {
+        GameObject lives = GameObject.Find("lives");
+        if (lives.transform.childCount < 1)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                GameObject life = GameObject.Instantiate(
+                    Resources.Load("life")
+                ) as GameObject;
+                life.transform.SetParent(lives.transform);
+            }
+        }
+
+        // Note: We are adjusting the scale because we don't want to affect the Horizontal Layout Group
+        // set visual lives
+        for (int i = 0; i < lives.transform.childCount; i++)
+            lives.transform.GetChild(i).localScale = Vector3.one;
+        
+        // remove visual lives
+        for (int i = 0; i < (lives.transform.childCount - players); i++)
+            lives.transform.GetChild(
+                lives.transform.childCount - i - 1
+            ).localScale = Vector3.zero;
     }
 }
