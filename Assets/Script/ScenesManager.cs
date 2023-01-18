@@ -120,6 +120,9 @@ public class ScenesManager : MonoBehaviour
                             playerTransition.LevelEnds = true;
                         else
                             playerTransition.GameCompleted = true;
+                        
+                        SendInJsonFormat(SceneManager.GetActiveScene().name);
+
                         Invoke("NextLevel", 4);
                     }
                 }
@@ -130,6 +133,24 @@ public class ScenesManager : MonoBehaviour
                 audioSource.clip = null;
                 break;
             }
+        }
+    }
+
+    private void SendInJsonFormat(string lastLevel)
+    {
+        if (lastLevel == "level3")
+        {
+            GameStats gameStats = new GameStats();
+            gameStats.livesLeft = GameManager.playerLives;
+            gameStats.completed = System.DateTime.Now.ToString();
+            gameStats.score = GetComponent<ScoreManager>().PlayersScore;
+
+            string json = JsonUtility.ToJson(gameStats, prettyPrint: true);
+            Debug.Log(json);
+
+            string savePath = $"{Application.persistentDataPath}/GameStatsSaved.json";
+            Debug.Log(savePath);
+            System.IO.File.WriteAllText(savePath, json);
         }
     }
 
