@@ -25,6 +25,14 @@ public class Player : MonoBehaviour, IActorTemplate
     float width;
     float height;
 
+    float camTravelSpeed;
+    public float CamTravelSpeed
+    {
+        get {return camTravelSpeed;}
+        set {camTravelSpeed = value;}
+    }
+    float movingScreen;
+
     void Start()
     {
         // Note: Viewport space coordinates are between 0 and 1.
@@ -33,6 +41,8 @@ public class Player : MonoBehaviour, IActorTemplate
         width = 1 / (view.x - 0.5f);
 
         _Player = GameObject.Find("_Player");
+
+        movingScreen = width;
     }
 
     void Update()
@@ -92,10 +102,16 @@ public class Player : MonoBehaviour, IActorTemplate
 
     void Movement()
     {
+        if (camTravelSpeed > 1)
+        {
+            transform.position += Vector3.right * Time.deltaTime * camTravelSpeed;
+            movingScreen += Time.deltaTime * camTravelSpeed;
+        }
+
         float horAxisRaw = Input.GetAxisRaw("Horizontal");
         if (horAxisRaw > 0)
         {
-            if (transform.localPosition.x < width + width / 0.9f)
+            if (transform.localPosition.x < movingScreen + (width / 0.9f))
             {
                 transform.localPosition += new Vector3(
                     horAxisRaw * Time.deltaTime * travelSpeed,
@@ -105,7 +121,7 @@ public class Player : MonoBehaviour, IActorTemplate
         }
         else if (horAxisRaw < 0)
         {
-            if (transform.localPosition.x > width + width / 6)
+            if (transform.localPosition.x > movingScreen + width / 6)
             {
                 transform.localPosition += new Vector3(
                     horAxisRaw * Time.deltaTime * travelSpeed,

@@ -39,10 +39,15 @@ public class GameManager : MonoBehaviour
         switch (sceneNumber)
         {
             // testLevel, Level1, Level2, Level3
-            case 3: case 4: case 5:
+            case 3: case 4:
             {
                 LightSetup();
-                CameraSetup();
+                CameraSetup(0);
+                break;
+            }
+            case 5:
+            {
+                CameraSetup(150);
                 break;
             }
         }
@@ -61,7 +66,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void CameraSetup()
+    public void CameraSetup(float camSpeed)
     {
         GameObject gameCamera = GameObject.FindGameObjectWithTag("MainCamera");
 
@@ -73,6 +78,9 @@ public class GameManager : MonoBehaviour
         Camera camera = gameCamera.GetComponent<Camera>();
         camera.clearFlags = CameraClearFlags.SolidColor;
         camera.backgroundColor = new Color32(0,0,0,255);
+
+        // Camera Movement Speed
+        gameCamera.GetComponent<CameraMovement>().CamSpeed = camSpeed;
     }
 
     void LightSetup()
