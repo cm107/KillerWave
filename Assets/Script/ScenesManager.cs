@@ -107,10 +107,15 @@ public class ScenesManager : MonoBehaviour
                 else
                 {
                     // if level is completed
-                    StartCoroutine(MusicVolume(MusicMode.fadeDown));
                     if (!gameEnding)
                     {
                         gameEnding = true;
+                        StartCoroutine(MusicVolume(MusicMode.fadeDown));
+
+                        GameObject player = GameObject.Find("Player");
+                        player.GetComponent<Rigidbody>().isKinematic = true;
+                        Player.mobile = false;
+                        CancelInvoke(); // Stops auto-fire when using mobile platform.
 
                         PlayerTransition playerTransition = (
                             GameObject.FindGameObjectWithTag("Player")
@@ -180,12 +185,9 @@ public class ScenesManager : MonoBehaviour
         SceneManager.LoadScene("gameOver");
     }
 
-    public void BeginGame()
-    {
-        SceneManager.LoadScene("testLevel");
-    }
     public void BeginGame(int gameLevel)
     {
+        gameTimer = 0;
         SceneManager.LoadScene(gameLevel);
     }
 }
